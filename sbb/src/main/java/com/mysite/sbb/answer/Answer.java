@@ -1,5 +1,6 @@
 package com.mysite.sbb.answer;
 import com.mysite.sbb.question.Question;
+import com.mysite.sbb.user.SiteUser;
 
 import java.time.LocalDateTime;
 
@@ -27,6 +28,11 @@ public class Answer
 		private LocalDateTime createDate;
 		
 		@ManyToOne
+	    private SiteUser author;
+		
+		@ManyToOne
 		// M : N 하나의 질문에 답변은 여러 개, 답변: Many, 질문: One
 		private Question question;
+		
+		private LocalDateTime modifyDate;
 	}

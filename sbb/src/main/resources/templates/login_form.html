@@ -1,0 +1,29 @@
+<html layout:decorate="~{layout}">
+	
+<div layout:fragment="content" class="container my-3">
+	
+    <form th:action="@{/user/login}" method="post">
+        <div th:if="${param.error}">
+			<!-- 로그인 실패시 매개변수로 error가 함께 들어온다-->
+			<!-- 시큐리티에서 로그인 실패시 http://localhost:8080/user/login?error 와 같이 eeror 매개변수를 전달한다.
+			 이 때 param.error로 error 매개변수가 전달되었는지 확인할 수 있다.-->
+            <div class="alert alert-danger">
+                사용자ID 또는 비밀번호를 확인해 주세요.
+            </div>
+        </div>
+		
+        <div class="mb-3">
+            <label for="username" class="form-label">사용자ID</label>
+            <input type="text" name="username" id="username" class="form-control">
+        </div>
+		
+        <div class="mb-3">
+            <label for="password" class="form-label">비밀번호</label>
+            <input type="password" name="password" id="password" class="form-control">
+        </div>
+		
+        <button type="submit" class="btn btn-primary">로그인</button>
+		
+    </form>
+</div>
+</html>

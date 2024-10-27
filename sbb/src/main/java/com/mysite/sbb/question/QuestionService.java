@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mysite.sbb.DataNotFoundException;
+import com.mysite.sbb.user.SiteUser;
 
 import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
@@ -53,12 +54,21 @@ public class QuestionService
 			}
 
 		// 제목(subject)과 내용(content)을 입력받아 이를 질문으로 저장하는 create 메서드를 만들었다.
-		public void create(String subject, String content)
+		public void create(String subject, String content, SiteUser user)
 			{
 				Question q = new Question();
 				q.setSubject(subject);
 				q.setContent(content);
 				q.setCreateDate(LocalDateTime.now());
+				q.setAuthor(user);
 				this.questionRepository.save(q);
 			}
+		
+	    public void modify(Question question, String subject, String content) 
+	    {
+	        question.setSubject(subject);
+	        question.setContent(content);
+	        question.setModifyDate(LocalDateTime.now());
+	        this.questionRepository.save(question);
+	    }
 	}
