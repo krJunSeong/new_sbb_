@@ -26,7 +26,7 @@ public class HelloLombok
 				
 				System.out.println(h.get_hello());
 				System.out.println(h.get_lombok());
-				
+				// hello Lombok Test 주석
 			}
 
 	}
