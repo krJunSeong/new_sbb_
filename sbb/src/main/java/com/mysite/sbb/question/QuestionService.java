@@ -15,6 +15,7 @@ import com.mysite.sbb.DataNotFoundException;
 import com.mysite.sbb.user.SiteUser;
 
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Service
 public class QuestionService
@@ -31,13 +32,13 @@ public class QuestionService
 			{
 				// 1.Sort.Order라는 객체가 들어갈 List 생성
 				List<Sort.Order> sorts = new ArrayList<>();
-				
+
 				// 2. sorts에 추가(createDate) 라는 기준으로 역방향 출력
 				sorts.add(Sort.Order.desc("createDate"));
-				
+
 				// 3. 이를 기반으로 pageable을 만든다
 				Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-				
+
 				// 4. 이를 기반으로 출력한 Page를 돌려준다
 				return this.questionRepository.findAll(pageable);
 			}
@@ -63,12 +64,23 @@ public class QuestionService
 				q.setAuthor(user);
 				this.questionRepository.save(q);
 			}
-		
-	    public void modify(Question question, String subject, String content) 
-	    {
-	        question.setSubject(subject);
-	        question.setContent(content);
-	        question.setModifyDate(LocalDateTime.now());
-	        this.questionRepository.save(question);
-	    }
+
+		public void modify(Question question, String subject, String content)
+			{
+				question.setSubject(subject);
+				question.setContent(content);
+				question.setModifyDate(LocalDateTime.now());
+				this.questionRepository.save(question);
+			}
+
+		public void delete(Question question)
+			{
+				this.questionRepository.delete(question);
+			}
+
+		public void vote(Question question, SiteUser siteUser)
+			{
+				question.getVoter().add(siteUser);
+				this.questionRepository.save(question);
+			}
 	}

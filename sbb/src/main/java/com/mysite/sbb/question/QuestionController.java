@@ -66,7 +66,8 @@ public class QuestionController
 
 		@PreAuthorize("isAuthenticated()")
 		@PostMapping("/create")
-		public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal parincipal)
+		public String questionCreate(@Valid QuestionForm questionForm, BindingResult bindingResult,
+				Principal parincipal)
 			{
 				if (bindingResult.hasErrors())
 					{
@@ -84,36 +85,76 @@ public class QuestionController
 				return "question_form";
 			}
 
-	    @PreAuthorize("isAuthenticated()")
-	    @GetMapping("/modify/{id}")
-		public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal) 
-		{
-			// 2. 수정할 질문 제목과 내용을 questionForm 객체에 id 값으로 조회
-	        Question question = this.questionService.getQuestion(id);
-			
-			// 1. 사용자와 질문 != 질문 작성자: 수정권한 없음 error 발생
-	        if(!question.getAuthor().getUsername().equals(principal.getName())) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-	        }
-			
-			// 3. subject와 Content를 저장하고, question_form으로 넘긴다
-	        questionForm.setSubject(question.getSubject());
-	        questionForm.setContent(question.getContent());
-	        return "question_form";
-		}
-		
-	    @PreAuthorize("isAuthenticated()")
-	    @PostMapping("/modify/{id}")
-	    public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, 
-	            Principal principal, @PathVariable("id") Integer id) {
-	        if (bindingResult.hasErrors()) {
-	            return "question_form";
-	        }
-	        Question question = this.questionService.getQuestion(id);
-	        if (!question.getAuthor().getUsername().equals(principal.getName())) {
-	            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-	        }
-	        this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
-	        return String.format("redirect:/question/detail/%s", id);
-	    }
+		@PreAuthorize("isAuthenticated()")
+		@GetMapping("/modify/{id}")
+		public String questionModify(QuestionForm questionForm, @PathVariable("id") Integer id, Principal principal)
+			{
+				// 2. 수정할 질문 제목과 내용을 questionForm 객체에 id 값으로 조회
+				Question question = this.questionService.getQuestion(id);
+
+				// 1. 사용자와 질문 != 질문 작성자: 수정권한 없음 error 발생
+				if (!question.getAuthor().getUsername().equals(principal.getName()))
+					{
+						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+					}
+
+				// 3. subject와 Content를 저장하고, question_form으로 넘긴다
+				questionForm.setSubject(question.getSubject());
+				questionForm.setContent(question.getContent());
+				return "question_form";
+			}
+
+		@PreAuthorize("isAuthenticated()")
+		@PostMapping("/modify/{id}")
+		public String questionModify(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal,
+				@PathVariable("id") Integer id)
+			{
+				if (bindingResult.hasErrors())
+					{
+						return "question_form";
+					}
+				Question question = this.questionService.getQuestion(id);
+				if (!question.getAuthor().getUsername().equals(principal.getName()))
+					{
+						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+					}
+				this.questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+				return String.format("redirect:/question/detail/%s", id);
+			}
+
+		@PreAuthorize("isAuthenticated()")
+		@GetMapping("/delete/{id}")
+		public String questionDelete(Principal principal, @PathVariable("id") Integer id)
+			{
+				/*
+				 * 사용자가 [삭제] 버튼을 클릭했다면 URL로 전달받은 id값을 사용하여 Question 데이터를 조회한 후, 로그인한 사용자와 질문
+				 * 작성자가 동일한 경우, 질문을 삭제한다. 버튼생성; Questino_detail.html 삭제기능; Question Service
+				 * URL처리: Question Controller
+				 */
+				Question question = this.questionService.getQuestion(id);
+				if (!question.getAuthor().getUsername().equals(principal.getName()))
+					{
+						throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+					}
+				this.questionService.delete(question);
+				return "redirect:/";
+			}
+
+		@PreAuthorize("isAuthenticated()")
+		@GetMapping("/vote/{id}")
+		public String questionVote(Principal principal, @PathVariable("id") Integer id)
+			{
+				/*	
+				 * 추천 버튼: question_detail.html
+				 * 정말 추천하시겠습니까?: question_detail.html -> javascript "recommend"
+				   추천인 저장: array 
+				 
+				 
+				 */
+				Question question = this.questionService.getQuestion(id);
+				SiteUser siteUser = this.userService.getUser(principal.getName());
+				this.questionService.vote(question, siteUser);
+				return String.format("redirect:/question/detail/%s", id);
+			}
+
 	}
